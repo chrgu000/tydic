@@ -1,0 +1,12 @@
+
+经分：
+http://135.33.6.176:8080/tydic-bi-yn-portal/pages/login.jsp
+ 门户admin
+用户名：17787019595
+验证码：959595
+
+风险管控：http://135.33.6.14:8080/iap/iap/login.jsp
+用户：tydic
+密码：tydic_123456
+
+集团上传监控： http://135.32.247.28:8080/webmanage/

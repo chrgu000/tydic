@@ -1,0 +1,9 @@
+select a.地市,
+       count( distinct a.设备号) 发展数, --发展数
+       sum(decode(a.是否机卡匹配,'否',0,1)) 机卡匹配数, --机卡匹配数
+       sum(decode(a.是否机卡匹配,'否',0,1))/count( distinct a.设备号) 匹配占比  --匹配占比
+  from PU_WT.tmp_SERV_C_D_20180117 a 
+  where （a.用户创建时间 between '20180101' and '20180117'） --
+       --  and nvl( a.is_dev_flag,1)=1  --是否计发展  0 _否  1或空 _是
+  group by a.地市 
+  order by a.地市 

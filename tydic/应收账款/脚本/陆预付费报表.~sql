@@ -1,0 +1,181 @@
+select 201702 month_no,
+a.city_nm,
+case when length(a.inter_org_id)=2 then  a.org_nm||'(合计)' else a.org_nm end,
+
+
+b.h_add_nums1 add_nums10,
+b.y_add_num1 add_nums11,
+round(decode(b.y_add_nums1,0,0,b.y_add_num1/b.y_add_nums1),4) add_nums12,
+b.h_add_nums2 add_nums13,
+b.y_add_num2 add_nums14,
+round(decode(b.y_add_nums2,0,0,b.y_add_num2/b.y_add_nums2),4) add_nums15,
+b.h_add_nums3 add_nums16,
+b.y_add_num3 add_nums17,
+round(decode(b.y_add_nums3,0,0,b.y_add_num3/b.y_add_nums3),4) add_nums18,
+b.h_add_nums11 add_nums1,
+b.y_add_num11 add_nums2,
+round(decode(b.y_add_nums11,0,0,b.y_add_num11/b.y_add_nums11),4) add_nums12,
+b.h_add_nums22 add_nums4,
+b.y_add_num22 add_nums5,
+round(decode(b.y_add_nums22,0,0,b.y_add_num22/b.y_add_nums22),4) add_nums15,
+b.h_add_nums33 add_nums7,
+b.y_add_num33 add_nums8,
+round(decode(b.y_add_nums33,0,0,b.y_add_num33/b.y_add_nums33),4) add_nums18,
+c.h_add_nums1 add_nums1,
+c.y_add_num1 add_nums2,
+round(decode(c.y_add_nums1,0,0,c.y_add_num1/c.y_add_nums1),4) add_nums3,
+c.h_add_nums2 add_nums4,
+c.y_add_num2 add_nums5,
+round(decode(c.y_add_nums2,0,0,c.y_add_num2/c.y_add_nums2),4) add_nums6,
+c.h_add_nums3 add_nums7,
+c.y_add_num3 add_nums8,
+round(decode(c.y_add_nums3,0,0,c.y_add_num3/c.y_add_nums3),4) add_nums9,
+c.h_add_nums11 add_nums1,
+c.y_add_num11 add_nums2,
+round(decode(c.y_add_nums11,0,0,c.y_add_num11/c.y_add_nums11),4) add_nums3,
+c.h_add_nums22 add_nums4,
+c.y_add_num22 add_nums5,
+round(decode(c.y_add_nums22,0,0,c.y_add_num22/c.y_add_nums22),4) add_nums6,
+c.h_add_nums33 add_nums7,
+c.y_add_num33 add_nums8,
+round(decode(c.y_add_nums33,0,0,c.y_add_num33/c.y_add_nums33),4) add_nums9 
+from 
+ pu_meta.ethink_sys a,
+(select 
+ area_code，
+ std_area_code, 
+sum(case when user_type='固网' and pay_type='后付费' then add_nums else 0 end)h_add_nums1，
+sum(case when user_type='固网' and  pay_type='预付费' then add_nums else 0 end)y_add_num1,
+sum(case when user_type='固网'then add_nums else 0 end)y_add_nums1, 
+ 
+sum(case when user_type='移动' and pay_type='后付费' then add_nums else 0 end)h_add_nums2，
+sum(case when user_type='移动' and  pay_type='预付费' then add_nums else 0 end)y_add_num2,
+sum(case when user_type='移动'then add_nums else 0 end)y_add_nums2, 
+ 
+sum(case when user_type='宽带' and pay_type='后付费' then add_nums else 0 end)h_add_nums3，
+sum(case when user_type='宽带' and  pay_type='预付费' then add_nums else 0 end)y_add_num3,
+sum(case when user_type='宽带'then add_nums else 0 end)y_add_nums3 , 
+ 
+sum(case when user_type='专线' and pay_type='后付费' then add_nums else 0 end)h_add_nums11，
+sum(case when user_type='专线' and  pay_type='预付费' then add_nums else 0 end)y_add_num11,
+sum(case when user_type='专线'then add_nums else 0 end)y_add_nums11 , 
+ 
+sum(case when user_type='基础数据和网元出租' and pay_type='后付费' then add_nums else 0 end)h_add_nums22，
+sum(case when user_type='基础数据和网元出租' and  pay_type='预付费' then add_nums else 0 end)y_add_num22,
+sum(case when user_type='基础数据和网元出租'then add_nums else 0 end)y_add_nums22 , 
+ 
+sum(case when user_type='ICT及其他' and pay_type='后付费' then add_nums else 0 end)h_add_nums33，
+sum(case when user_type='ICT及其他' and  pay_type='预付费' then add_nums else 0 end)y_add_num33,
+sum(case when user_type='ICT及其他'then add_nums else 0 end)y_add_nums33 
+from PU_BASE_IND.DM_HH_NOTICE_OCS_DEV_M 
+where month_no=201702
+ group by area_code，std_area_code
+ )b,
+(select 
+ area_code，
+ std_area_code, 
+sum(case when user_type='固网' and pay_type='后付费' then add_nums else 0 end)h_add_nums1，
+sum(case when user_type='固网' and  pay_type='预付费' then add_nums else 0 end)y_add_num1,
+sum(case when user_type='固网'then add_nums else 0 end)y_add_nums1, 
+ 
+sum(case when user_type='移动' and pay_type='后付费' then add_nums else 0 end)h_add_nums2，
+sum(case when user_type='移动' and  pay_type='预付费' then add_nums else 0 end)y_add_num2,
+sum(case when user_type='移动'then add_nums else 0 end)y_add_nums2, 
+ 
+sum(case when user_type='宽带' and pay_type='后付费' then add_nums else 0 end)h_add_nums3，
+sum(case when user_type='宽带' and  pay_type='预付费' then add_nums else 0 end)y_add_num3,
+sum(case when user_type='宽带'then add_nums else 0 end)y_add_nums3 , 
+ 
+sum(case when user_type='专线' and pay_type='后付费' then add_nums else 0 end)h_add_nums11，
+sum(case when user_type='专线' and  pay_type='预付费' then add_nums else 0 end)y_add_num11,
+sum(case when user_type='专线'then add_nums else 0 end)y_add_nums11 , 
+ 
+sum(case when user_type='基础数据和网元出租' and pay_type='后付费' then add_nums else 0 end)h_add_nums22，
+sum(case when user_type='基础数据和网元出租' and  pay_type='预付费' then add_nums else 0 end)y_add_num22,
+sum(case when user_type='基础数据和网元出租'then add_nums else 0 end)y_add_nums22 , 
+ 
+sum(case when user_type='ICT及其他' and pay_type='后付费' then add_nums else 0 end)h_add_nums33，
+sum(case when user_type='ICT及其他' and  pay_type='预付费' then add_nums else 0 end)y_add_num33,
+sum(case when user_type='ICT及其他'then add_nums else 0 end)y_add_nums33 
+from PU_BASE_IND.DM_HH_NOTICE_OCS_DEV_M 
+where month_no=201701
+ group by area_code，std_area_code
+ )c
+ where a.INTER_ORG_ID=b.std_area_code(+)
+ and a.INTER_ORG_ID=c.std_area_code(+)
+ and length(a.INTER_ORG_ID)<=2 ;
+ 
+ 
+ select distinct user_type from PU_BASE_IND.DM_HH_NOTICE_OCS_DEV_M 
+ where month_no='201701'
+ 
+ 
+ 
+ 
+ 
+ select 201702 month_no,
+a.city_nm,
+case when length(a.inter_org_id)=2 then  a.org_nm||'(合计)' else a.org_nm end, 
+
+b.h_add_nums1 add_nums10,
+b.y_add_num1 add_nums11,
+round(decode(b.y_add_nums1,0,0,b.y_add_num1/b.y_add_nums1),4) add_nums12,
+b.h_add_nums2 add_nums13,
+b.y_add_num2 add_nums14,
+round(decode(b.y_add_nums2,0,0,b.y_add_num2/b.y_add_nums2),4) add_nums15,
+b.h_add_nums3 add_nums16,
+b.y_add_num3 add_nums17,
+round(decode(b.y_add_nums3,0,0,b.y_add_num3/b.y_add_nums3),4) add_nums18,  
+
+c.h_add_nums1 add_nums1,
+c.y_add_num1 add_nums2,
+round(decode(c.y_add_nums1,0,0,c.y_add_num1/c.y_add_nums1),4) add_nums3,
+c.h_add_nums2 add_nums4,
+c.y_add_num2 add_nums5,
+round(decode(c.y_add_nums2,0,0,c.y_add_num2/c.y_add_nums2),4) add_nums6,
+c.h_add_nums3 add_nums7,
+c.y_add_num3 add_nums8,
+round(decode(c.y_add_nums3,0,0,c.y_add_num3/c.y_add_nums3),4) add_nums9 
+from 
+ pu_meta.ethink_sys a,
+(select 
+ area_code，
+ std_area_code, 
+sum(case when user_type not in('移动','宽带','专线') and pay_type='后付费' then add_nums else 0 end)h_add_nums1，
+sum(case when user_type not in('移动','宽带','专线') and  pay_type='预付费' then add_nums else 0 end)y_add_num1,
+sum(case when user_type not in('移动','宽带','专线')then add_nums else 0 end)y_add_nums1, 
+ 
+sum(case when user_type='移动' and pay_type='后付费' then add_nums else 0 end)h_add_nums2，
+sum(case when user_type='移动' and  pay_type='预付费' then add_nums else 0 end)y_add_num2,
+sum(case when user_type='移动'then add_nums else 0 end)y_add_nums2, 
+ 
+sum(case when user_type in('宽带','专线') and pay_type='后付费' then add_nums else 0 end)h_add_nums3，
+sum(case when user_type in('宽带','专线') and  pay_type='预付费' then add_nums else 0 end)y_add_num3,
+sum(case when user_type in('宽带','专线')then add_nums else 0 end)y_add_nums3  
+from PU_BASE_IND.DM_HH_NOTICE_OCS_DEV_M 
+where month_no=201702
+ group by area_code，std_area_code
+ )b,
+(select 
+ area_code，
+ std_area_code, 
+sum(case when user_type not in('移动','宽带','专线') and pay_type='后付费' then add_nums else 0 end)h_add_nums1，
+sum(case when user_type not in('移动','宽带','专线') and  pay_type='预付费' then add_nums else 0 end)y_add_num1,
+sum(case when user_type not in('移动','宽带','专线')then add_nums else 0 end)y_add_nums1, 
+ 
+sum(case when user_type='移动' and pay_type='后付费' then add_nums else 0 end)h_add_nums2，
+sum(case when user_type='移动' and  pay_type='预付费' then add_nums else 0 end)y_add_num2,
+sum(case when user_type='移动'then add_nums else 0 end)y_add_nums2, 
+ 
+sum(case when user_type in('宽带','专线') and pay_type='后付费' then add_nums else 0 end)h_add_nums3，
+sum(case when user_type in('宽带','专线') and  pay_type='预付费' then add_nums else 0 end)y_add_num3,
+sum(case when user_type in('宽带','专线')then add_nums else 0 end)y_add_nums3 
+from PU_BASE_IND.DM_HH_NOTICE_OCS_DEV_M 
+where month_no=201701
+ group by area_code，std_area_code
+ )c
+ where a.INTER_ORG_ID=b.std_area_code(+)
+ and a.INTER_ORG_ID=c.std_area_code(+)
+ and length(a.INTER_ORG_ID)<=2 ;
+ 
+  

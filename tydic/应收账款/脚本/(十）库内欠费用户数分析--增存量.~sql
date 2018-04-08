@@ -1,0 +1,794 @@
+create table pu_busi_ind.bm_Accounts_recv_m10_1
+(month_no      varchar2(6),
+cust_type      varchar2(6),
+order_no       number,
+area_code      varchar2(6),
+area_name      varchar2(16),
+values_num1    number,
+values_num2    number,
+values_num3    number,
+values_num4    number,
+values_num5    number,
+values_num6    number,
+values_num7    number,
+values_num8    number,
+values_num9    number,
+values_num10    number,
+values_num11    number,
+values_num12    number,
+values_num13    number,
+values_num14    number,
+values_num15    number,
+values_num16    number,
+values_num17    number,
+values_num18    number,
+values_num19    number,
+values_num20    number,
+values_num21    number,
+values_num22    number,
+values_num23    number,
+values_num24    number,
+values_num25    number)
+
+create table pu_busi_ind.bm_Accounts_recv_m10_2
+(month_no      varchar2(6),
+cust_type      varchar2(6),
+order_no       number,
+area_code      varchar2(6),
+area_name      varchar2(16),
+values_num1    number,
+values_num2    number,
+values_num3    number,
+values_num4    number,
+values_num5    number,
+values_num6    number,
+values_num7    number,
+values_num8    number,
+values_num9    number,
+values_num10    number,
+values_num11    number,
+values_num12    number,
+values_num13    number,
+values_num14    number,
+values_num15    number,
+values_num16    number,
+values_num17    number,
+values_num18    number,
+values_num19    number,
+values_num20    number,
+values_num21    number,
+values_num22    number,
+values_num23    number,
+values_num24    number,
+values_num25    number,
+values_num26    number,
+values_num27    number,
+values_num28    number,
+values_num29    number,
+values_num30    number,
+values_num31    number,
+values_num32    number,
+values_num33    number,
+values_num34    number,
+values_num35    number,
+values_num36    number,
+values_num37    number,
+values_num38    number,
+values_num39    number,
+values_num40    number,
+values_num41    number,
+values_num42    number,
+values_num43    number,
+values_num44    number,
+values_num45    number,
+values_num46    number,
+values_num47    number,
+values_num48    number,
+values_num49    number,
+values_num50    number,
+values_num51    number,
+values_num52    number,
+values_num53    number,
+values_num54    number,
+values_num55    number,
+values_num56    number  )
+
+
+CREATE OR REPLACE PROCEDURE PU_BUSI_IND.p_bm_Accounts_recv_m10(V_DATE IN VARCHAR2) IS
+
+  V_DAY        VARCHAR2(8);
+  V_MONTH      VARCHAR2(6);
+  V_MONTH_QN      VARCHAR2(6);
+  V_MONTH_PRE VARCHAR2(6);
+  V_YEAR  VARCHAR2(6);
+  V_YEAR_PRE VARCHAR2(6);
+  V_LAST_DATE  VARCHAR2(8);
+  V_NUMS       NUMBER;
+
+BEGIN
+  V_DAY        := SUBSTR(V_DATE, 1, 8);
+  V_MONTH      := SUBSTR(V_DATE, 1, 6);
+  V_YEAR       := SUBSTR(V_DATE, 1, 4);
+  V_YEAR_PRE   :=V_YEAR-1;
+  V_MONTH_QN   := V_YEAR_PRE||SUBSTR(V_MONTH,-2);
+  V_MONTH_PRE := TO_CHAR(ADD_MONTHS(TO_DATE(V_MONTH, 'YYYYMM'), -1),
+                          'YYYYMM');
+  v_nums    :=to_number(substr(v_month,-2));
+
+truncate table pu_busi_ind.TMP_OWE_KN_NEW03 ;
+execute immediate'insert into pu_busi_ind.TMP_OWE_KN_NEW03  
+ Select A.*,
+        Case
+          When A.BRANCH_TYPE = ''其他'' Then
+           Case
+             When A.AREA_CODE In (''0691'', ''0872'', ''0873'', ''0883'', ''0887'', ''0877'', ''0878'', ''0888'', ''0879'') Then
+              ''公众''
+             When A.AREA_CODE In (''0692'', ''0870'') Then
+              ''政企''
+             Else
+              Decode(A.BRANCH_TYPE, ''其他'', Nvl(B.BRANCH_TYPE_TZ, ''其他''), A.BRANCH_TYPE)
+           End
+          Else
+           A.BRANCH_TYPE
+        End BRANCH_TYPE_NEW,
+        Case
+          When A.CUST_GROUP_NEW = ''其他'' Then
+           Case
+             When A.AREA_CODE In (''0691'', ''0872'', ''0873'', ''0883'', ''0887'', ''0877'', ''0878'', ''0888'', ''0879'') Then
+              ''公众''
+             When A.AREA_CODE In (''0692'', ''0870'') Then
+              ''政企''
+             Else
+              Decode(A.CUST_GROUP_NEW, ''其他'', Nvl(B.CUST_GROUP_TZ, ''其他''), A.CUST_GROUP_NEW)
+           End
+          Else
+           A.CUST_GROUP_NEW
+        End CUST_GROUP_TZ,
+        A.XZQ_AMOUNT_REAL - A.XZQ_OWE_AGE0 + A.XZH_OWE_AGE0 AMOUNT_REAL
+   From (Select /*+PARALLEL(T1,16)*/
+          T1.*,
+          Decode(Nvl(T2.AREA_TYPE, ''其他''), ''政企团队'', ''政企'', ''政企'', ''政企'', ''其他'', ''其他'', ''公众'') CUST_GROUP_NEW,
+          --Decode(T1.IS_ZQ_FLAG, 1, ''9000'', T1.AREA_CODE) AREA_CODE1,
+          Case
+            When T4.BRANCH_CODE2 = ''85344000000'' Then
+             ''9004''
+						When T3.SERV_ID Is Not Null Then
+						 ''9000''
+						When T4.BRANCH_CODE3 = ''85301970000'' Then
+						 ''9003''
+						Else
+						 T1.AREA_CODE
+					End AREA_CODE1,
+					Nvl(T2.AREA_TYPE, ''其他'') BRANCH_TYPE,
+					Case
+						When Nvl(T1.XZQ_MIN_MONTH, ''999999'') >= Nvl(T1.XZH_MIN_MONTH, ''999999'') Then
+						 T1.XZH_MIN_MONTH
+						Else
+						 T1.XZQ_MIN_MONTH
+					End MIN_OWE_MONTH,
+					Case
+						When Nvl(T1.XZQ_MAX_MONTH, ''000000'') >= Nvl(T1.XZH_MAX_MONTH, ''000000'') Then
+						 T1.XZQ_MAX_MONTH
+						Else
+						 T1.XZH_MAX_MONTH
+					End MAX_OWE_MONTH,
+					XZQ_SERV_MONTH_NUM0 + XZH_SERV_MONTH_NUM - XZH_SERV_MONTH_NUM0 OWE_MONTHS
+					 From PU_INTF.WT_SERV_OWE_M_'||v_month_pre||'_ZML T1,
+								PU_INTF.I_IN_KG_SERV_GRID Partition(P'||v_month_pre||') T5,
+								PU_META.D_HX_ZD_ORG_BRANCH_TREE T4,
+								(Select * From PU_INTF.I_IN_HX_ZD_ORG_BRANCH Where DATE_NO = '||V_DAY||') T2,
+								PU_WT.WT_SERV_SHZ_ALL_'||v_month_pre||' T3
+					Where T1.SERV_ID = T5.PROD_ID(+)
+						And T5.SUM_BRANCH_CODE = T4.BRANCH_CODE(+)
+						And T4.BRANCH_CODE5 = T2.TEAM_ID(+)
+						And T1.SERV_ID = T3.SERV_ID(+)) A
+	 Left Join (Select SERV_ID_TZ,
+										 Max(Nvl(BRANCH_TYPE_TZ, ''其他'')) BRANCH_TYPE_TZ,
+										 Max(Decode(Nvl(BRANCH_TYPE_TZ, ''其他''), ''政企团队'', ''政企'', ''政企'', ''政企'', ''其他'', ''其他'', ''公众'')) CUST_GROUP_TZ
+								From PU_WT.WT_BRANCH_TYPE_TZ_LIST
+							 Where SERV_ID_TZ Is Not Null
+							 Group By SERV_ID_TZ) B
+		 On A.SERV_ID = B.SERV_ID_TZ';
+commit;
+
+delete from pu_busi_ind.bm_Accounts_recv_m10_1 where month_no=v_month;
+commit; 
+insert into pu_busi_ind.bm_Accounts_recv_m10_1
+SELECT /*+parallel(a,4)*/
+       v_month,
+       a.cust_group_TZ,
+       b.order_no  ,
+       A.AREA_CODE1  ,
+       B.area_name  ,
+       --总用户数
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN 1 ELSE 0 END),
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN 1 ELSE 0 END),       
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN 1 ELSE 0 END),
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN 1 ELSE 0 END),
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN 1 ELSE 0 END),
+       --存量用户数
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,       
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       --增量用户数
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,       
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt
+FROM TMP_OWE_KN_NEW03 a
+LEFT JOIN pu_meta.latn_new_order b ON A.AREA_CODE1 = b.local_code 
+GROUP BY a.cust_group_TZ,b.order_no,A.AREA_CODE1,B.area_name;
+commit;
+
+---全省值
+insert into pu_busi_ind.bm_Accounts_recv_m10_1
+SELECT /*+parallel(a,4)*/
+       v_month,
+       a.cust_group_TZ,
+       20  ,
+       '9999'  ,
+       '全省'  ,
+       --总用户数
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN 1 ELSE 0 END),
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN 1 ELSE 0 END),       
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN 1 ELSE 0 END),
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN 1 ELSE 0 END),
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN 1 ELSE 0 END),
+       --存量用户数
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,       
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       --增量用户数
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,       
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt
+FROM TMP_OWE_KN_NEW03 a
+LEFT JOIN pu_meta.latn_new_order b ON A.AREA_CODE1 = b.local_code 
+GROUP BY a.cust_group_TZ;
+commit;
+
+---合并
+insert into pu_busi_ind.bm_Accounts_recv_m10_1
+SELECT /*+parallel(a,4)*/
+       v_month,
+       '合并',
+       b.order_no  ,
+       A.AREA_CODE1  ,
+       B.area_name  ,
+       --总用户数
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN 1 ELSE 0 END),
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN 1 ELSE 0 END),       
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN 1 ELSE 0 END),
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN 1 ELSE 0 END),
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN 1 ELSE 0 END),
+       --存量用户数
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,       
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       --增量用户数
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,       
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt
+FROM TMP_OWE_KN_NEW03 a
+LEFT JOIN pu_meta.latn_new_order b ON A.AREA_CODE1 = b.local_code 
+GROUP BY b.order_no,A.AREA_CODE1,B.area_name;
+commit;
+
+
+----合并 全省值
+insert into pu_busi_ind.bm_Accounts_recv_m10_1
+SELECT /*+parallel(a,4)*/
+       v_month,
+       '合并' cust_group_TZ,
+       20 b.order_no  ,
+       '9999' A.AREA_CODE1  ,
+       '全省' B.area_name  ,
+       --总用户数
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN 1 ELSE 0 END),
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN 1 ELSE 0 END),       
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN 1 ELSE 0 END),
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN 1 ELSE 0 END),
+       SUM(CASE WHEN a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN 1 ELSE 0 END),
+       --存量用户数
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,       
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       --增量用户数
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,       
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 1 THEN 1 ELSE 0 END) yff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND a.AMOUNT_REAL <> 0 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 2 THEN 1 ELSE 0 END) hff_cnt
+FROM TMP_OWE_KN_NEW03 a
+LEFT JOIN pu_meta.latn_new_order b ON A.AREA_CODE1 = b.local_code  ;
+commit;
+
+----*****************欠费***************———
+delete from  pu_busi_ind.bm_Accounts_recv_m10_2 where month_no=v_month;
+commit;
+insert into pu_busi_ind.bm_Accounts_recv_m10_2 
+SELECT /*+parallel(a,4)*/
+       v_month,
+       a.cust_group_TZ cust_type, 
+       b.order_no  ,
+       A.AREA_CODE1 ,
+       B.area_name ,
+      --总欠费
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') = v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM')THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') <= v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       --存量
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') = v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM')THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/SUM(a.AMOUNT_REAL),
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthAND a.billing_mode_id = 1 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 yff_amount,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthAND a.billing_mode_id = 2 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 hff_amount,
+       --增量
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') = v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/SUM(a.AMOUNT_REAL),
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 1 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 yff_amount,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 2 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 hff_amount,
+       --正常
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       --单停
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --双停
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --拆机
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --活卡 
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       --挂失
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --I类
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000                  
+FROM TMP_OWE_KN_NEW03 a
+LEFT JOIN pu_meta.latn_new_order b ON A.AREA_CODE1 = b.local_code 
+GROUP BY a.cust_group_TZ,b.order_no,A.AREA_CODE1,B.area_name;
+commit;
+
+----全省值
+
+insert into pu_busi_ind.bm_Accounts_recv_m10_2 
+SELECT /*+parallel(a,4)*/
+       v_month,
+       a.cust_group_TZ cust_type, 
+       20  ,
+       '9999' ,
+       '全省' ,
+      --总欠费
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') = v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM')THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') <= v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       --存量
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') = v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM')THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/SUM(a.AMOUNT_REAL),
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthAND a.billing_mode_id = 1 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 yff_amount,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthAND a.billing_mode_id = 2 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 hff_amount,
+       --增量
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') = v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/SUM(a.AMOUNT_REAL),
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 1 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 yff_amount,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 2 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 hff_amount,
+       --正常
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       --单停
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --双停
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --拆机
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --活卡 
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       --挂失
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --I类
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000                  
+FROM TMP_OWE_KN_NEW03 a
+LEFT JOIN pu_meta.latn_new_order b ON A.AREA_CODE1 = b.local_code 
+GROUP BY a.cust_group_TZ;
+commit;
+
+-----合并
+insert into pu_busi_ind.bm_Accounts_recv_m10_2 
+SELECT /*+parallel(a,4)*/
+       v_month,
+       '合并'cust_type, 
+       b.order_no  ,
+       A.AREA_CODE1 ,
+       B.area_name ,
+      --总欠费
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') = v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM')THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') <= v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       --存量
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') = v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM')THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/SUM(a.AMOUNT_REAL),
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthAND a.billing_mode_id = 1 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 yff_amount,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthAND a.billing_mode_id = 2 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 hff_amount,
+       --增量
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') = v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/SUM(a.AMOUNT_REAL),
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 1 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 yff_amount,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 2 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 hff_amount,
+       --正常
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       --单停
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --双停
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --拆机
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --活卡 
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       --挂失
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --I类
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000                  
+FROM TMP_OWE_KN_NEW03 a
+LEFT JOIN pu_meta.latn_new_order b ON A.AREA_CODE1 = b.local_code 
+GROUP BY  b.order_no,A.AREA_CODE1,B.area_name;
+commit;
+
+----全省值
+
+insert into pu_busi_ind.bm_Accounts_recv_m10_2 
+SELECT /*+parallel(a,4)*/
+       v_month,
+       '合并' cust_type, 
+       20  ,
+       '9999' ,
+       '全省' ,
+      --总欠费
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') = v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM')THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN NVL(a.MIN_OWE_MONTH,'999999') <= v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       --存量
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') = v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM')THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/SUM(a.AMOUNT_REAL),
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthAND a.billing_mode_id = 1 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 yff_amount,
+       SUM(CASE WHEN a.serv_create_date <= v_year_pre||'1231' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_monthAND a.billing_mode_id = 2 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 hff_amount,
+       --增量
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') = v_monthTHEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/SUM(a.AMOUNT_REAL),
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 1 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 yff_amount,
+       SUM(CASE WHEN a.serv_create_date >= v_year||'0101' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month AND a.billing_mode_id = 2 THEN a.AMOUNT_REAL ELSE 0 END)/100/10000 hff_amount,
+       --正常
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HA' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       --单停
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state IN ('2IS','2HC','2HS') AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --双停
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state IN ('2HH','2ID','2HD','2HE') AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --拆机
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state IN ('2HK','2HX','2IX','2PX','2SX','2HB','2HF') AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --活卡 
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state='2HO' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       --挂失
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.state='2HJ' AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       --I类
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') = v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                   
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-3),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-1),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') BETWEEN to_char(add_months(to_date(v_month,'YYYYMM'),-12),'YYYYMM') AND to_char(add_months(to_date(v_month,'YYYYMM'),-4),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') <= to_char(add_months(to_date(v_month,'YYYYMM'),-13),'YYYYMM') THEN a.AMOUNT_REAL ELSE 0 END)/100/10000,                  
+       SUM(CASE WHEN a.is_i_flag=1 AND NVL(a.MIN_OWE_MONTH,'999999') <= v_month THEN a.AMOUNT_REAL ELSE 0 END)/100/10000                  
+FROM TMP_OWE_KN_NEW03 a
+LEFT JOIN pu_meta.latn_new_order b ON A.AREA_CODE1 = b.local_code;
+commit;
+
+exception when others
+  then 
+    rollback;
+     dbms_output.put_line(dbms_utility.format_error_backtrace);
+     dbms_output.put_line(dbms_utility.format_error_stack);
+END;
+
+
+
+
+
+update pu_busi_ind.bm_Accounts_recv_m10_1
+set order_no=22
+WHERE AREA_NAME='全省';
+commit;
+----sql
+select nvl(t.order_no,a.order_no),
+nvl(t.area_name,a.area_name),
+nvl(values_num1 ,0),
+nvl(values_num2 ,0),
+nvl(values_num3 ,0),
+nvl(values_num4 ,0),
+nvl(values_num5 ,0),
+nvl(values_num6 ,0),
+nvl(values_num7 ,0),
+nvl(values_num8 ,0),
+nvl(values_num9 ,0),
+nvl(values_num10,0),
+nvl(values_num11,0),
+nvl(values_num12,0),
+nvl(values_num13,0),
+nvl(values_num14,0),
+nvl(values_num15,0),
+nvl(values_num16,0),
+nvl(values_num17,0),
+nvl(values_num18,0),
+nvl(values_num19,0),
+nvl(values_num20,0),
+nvl(values_num21,0),
+nvl(values_num22,0),
+nvl(values_num23,0),
+nvl(values_num24,0),
+nvl(values_num25,0) 
+from  PU_META.LATN_NEW_ORDER a
+left join pu_busi_ind.bm_Accounts_recv_m10_1 t 
+on a.local_code=t.area_code  
+and month_no ='201703'
+and t.cust_type='合并' 
+where a.local_code not in ('9001','9002') 
+order by nvl(t.order_no,a.order_no); 
+
+select 
+select nvl(t.order_no,a.order_no),
+nvl(t.area_name,a.area_name),
+nvl(values_num1 ,0),
+nvl(values_num2 ,0),
+nvl(values_num3 ,0),
+nvl(values_num4 ,0),
+nvl(values_num5 ,0),
+nvl(values_num6 ,0),
+nvl(values_num7 ,0),
+nvl(values_num8 ,0),
+nvl(values_num9 ,0),
+nvl(values_num10,0),
+nvl(values_num11,0),
+nvl(values_num12,0),
+nvl(values_num13,0),
+nvl(values_num14,0),
+nvl(values_num15,0),
+nvl(values_num16,0),
+nvl(values_num17,0),
+nvl(values_num18,0),
+nvl(values_num19,0),
+nvl(values_num20,0),
+nvl(values_num21,0),
+nvl(values_num22,0),
+nvl(values_num23,0),
+nvl(values_num24,0),
+nvl(values_num25,0),
+nvl(values_num26,0),
+nvl(values_num27,0),
+nvl(values_num28,0),
+nvl(values_num29,0),
+nvl(values_num30,0),
+nvl(values_num31,0),
+nvl(values_num32,0),
+nvl(values_num33,0),
+nvl(values_num34,0),
+nvl(values_num35,0),
+nvl(values_num36,0),
+nvl(values_num37,0),
+nvl(values_num38,0),
+nvl(values_num39,0),
+nvl(values_num40,0),
+nvl(values_num41,0),
+nvl(values_num42,0),
+nvl(values_num43,0),
+nvl(values_num44,0),
+nvl(values_num45,0),
+nvl(values_num46,0),
+nvl(values_num47,0),
+nvl(values_num48,0),
+nvl(values_num49,0),
+nvl(values_num50,0),
+nvl(values_num51,0),
+nvl(values_num52,0),
+nvl(values_num53,0),
+nvl(values_num54,0),
+nvl(values_num55,0),
+nvl(values_num56,0) 
+from  PU_META.LATN_NEW_ORDER a
+left join pu_busi_ind.bm_Accounts_recv_m10_2 t 
+on a.local_code=t.area_code  
+and month_no ='201703'
+and t.cust_type='合并' 
+where a.local_code not in ('9001','9002') 
+order by nvl(t.order_no,a.order_no); 

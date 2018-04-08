@@ -1,0 +1,134 @@
+--WANGRM:注意上月跑脚本 分段跑 注释的情况     
+
+
+select * from pu_meta.etl_program_rule where rule_id='7001125';---规则表 
+
+---CRM重入网  ---
+
+select count(*) from  PU_WT.WT_CHRW_STREAM_INFO c where month_no='201802';--1	4856
+
+select COUNT(*) from  PU_WT.WT_CHRW_STREAM_INFO c where month_no='201801';--1	5188
+
+SELECT A.MONTH_NO,COUNT(*)  FROM PU_WT.WT_CHRW_STREAM_INFO A GROUP BY A.MONTH_NO ORDER BY A.MONTH_NO desc;
+
+------无效用户推送
+---
+
+-----
+select count(*) from  kg_intf.wt_serv_wx_201801; -- 1	18580190
+
+select count(*) from  kg_intf.wt_serv_wx_201712; --  1	18298225
+
+select count(*) from  kg_intf.wt_serv_wx_201711;  --1	18043406
+
+
+------
+
+---省政企省商客应收账款清单
+
+ select * from PU_WT.wt_szq_ssk a where a.month_no=201802;--
+ select * from PU_WT.wt_szq_ssk a where a.month_no=201712; --
+
+--- 调账用户欠费情况 --11月数据没跑完
+
+--1月数据
+select a.pay_month,count(*)  from IPD_IN.I_IN_PPM_INPUT_ADJUST_LIST@DL_ODS_JF a group by a.pay_month order by a.pay_month desc;   -- 依赖数据源表
+
+select count(*),sum(month_amount_total) from  PU_WT.WT_SERV_ADJUST_OWE c where month_no='201712'; --1	47491	168967969.86
+
+select a.month_no ,count(*),sum(month_amount_total) from  PU_WT.WT_SERV_ADJUST_OWE a  group by a.month_no order by a.month_no desc ;
+
+
+-----省政企清单  (报表)
+
+ Select A.SERV_ID, A.TEAM_ID, A.TEAM_NAME, B.ACCT_ID, B.ACC_NBR
+From PU_WT.WT_SERV_SHZ_ALL_201802 A, 
+F_1_SERV_D_JF B Where A.SERV_ID = B.SERV_ID(+);
+
+--  省商客清单 （报表）
+
+Select A.SERV_ID, A.USER_NAME, A.ACCT_ID, A.ACC_NBR
+	From PU_WT.F_1_SERV_D_JF A
+	Left Join PU_INTF.I_IN_KG_SERV_GRID Partition(P201802) F
+		On A.SERV_ID = F.PROD_ID
+	Left Join (Select * From PU_META.D_HX_ZD_ORG_BRANCH_TREE Where BRANCH_CODE3 = '85301970000') C
+		On F.SUM_BRANCH_CODE = C.BRANCH_CODE
+	Left Join PU_WT.WT_SERV_SHZ_ALL_201802 E
+		 On A.SERV_ID = E.SERV_ID
+ Where E.SERV_ID Is Null
+	 And C.BRANCH_CODE Is Not Null;
+ ---
+
+
+ 
+-----  SP用户另库金额
+
+select * from  IPD_IN.I_IN_B_ACCT_ITEM_AGGR_DEL@Dl_Odl_89 a order by a.etl_time; --数据源表1
+select * from  PU_WT.F_1_SERV_D_JF a order by a.month_no desc; --数据源表2
+select * from   dsg.A_OWE_SPECIAL_SERV@Dl_Odl_89 a order by ；--数据源表3
+                                       
+select count(*),sum(charge)  from  PU_WT.WT_ACCT_ITEM_SP_AGGR_DEL where month_NO='201801'; --12905	20641308
+
+select count(*),sum(charge)  from  PU_WT.WT_ACCT_ITEM_SP_AGGR_DEL where month_NO='201802'; --15212	24392600
+
+
+-----虚拟预存抵扣增值业务清单
+
+select * from DSG.ACCT_ITEM_OWE_201712@DL_ODL_89;--数据源表1
+select *  from  PU_WT.F_1_SERV_D_JF;-- 数据源表2 
+
+select A.MONTH_NO,count(*) from PU_WT.WT_ACCT_ITEM_XNYC_REDUCE_SP A GROUP BY A.MONTH_NO;--只到201609的数据 （正常情况下没数据）
+
+ 
+ ----增值业务次月欠费情况 
+ 
+ select a.month_no,count(*),sum(charge) from  PU_WT.WT_BIL_OWE_SP  a group by a.month_no order by a.month_no DESC;
+ 
+ select count(*),sum(charge)  from  PU_WT.WT_BIL_OWE_SP partition(p201801);--2440939	3112672983
+
+ select count(*),sum(charge)  from  PU_WT.WT_BIL_OWE_SP partition(p201802);--2415684	3176905013
+
+
+
+---省际语音漫游高额清单
+
+ Select count(*),sum(charge),sum(sett_fee) FROM pu_wt.wt_roam_call_js_mon t Where t.Month_No = 201801 and t.SETT_FEE <-100; --173	3992639	-23444.94
+
+ Select count(*),sum(charge),sum(sett_fee) FROM pu_wt.wt_roam_call_js_mon t Where t.Month_No = 201802 and t.SETT_FEE <-100;--	45	1280337	-5600.56
+
+
+
+---
+----用户sp费用减免情况   
+      
+ select count(*),sum(charge) ,sum(sp_charge) from  WT_SERV_ACCT_ITEM_SP_M partition (p201801); --206599	5737601.32	-3185738.9
+
+ select count(*),sum(charge) ,sum(sp_charge) from  WT_SERV_ACCT_ITEM_SP_M partition (p201802)--	208979	6184256.81	-3393048.62
+
+---增值用户稽核数据
+       
+
+                                                   
+
+ 
+-------增值业务第四月欠费
+
+select * from　PU_MODEL.TB_BIL_SERV_OWE_TRACK_201712@DL_EDW_YN;--数据源表1
+select * from pu_wt.F_1_SERV_D_JF;--数据原表2
+select * from PU_INTF.I_PRD_SERV;--数据源表3
+
+select count(*),sum(charge)   from  PU_WT.WT_BIL_OWE_SP_4PRE where month_no='201711';--（数据只到4月之前的）
+select count(*),sum(charge)   from  PU_WT.WT_BIL_OWE_SP_4PRE where month_no='201710';--02
+
+select month_no,count(*),sum(charge)  
+  from  PU_WT.WT_BIL_OWE_SP_4PRE 
+ group by  month_no
+ order by month_no desc;--（数据只到4月之前的）
+
+
+--增值业务欠费情况
+    SELECT   *  FROM   PU_BUSI_IND.BM_BIL_OWE_SP_ZH  a   where a.MONTH_NO=201801
+   
+    SELECT   *  FROM   PU_BUSI_IND.BM_BIL_OWE_SP_ZH  a   where a.MONTH_NO=201802
+
+

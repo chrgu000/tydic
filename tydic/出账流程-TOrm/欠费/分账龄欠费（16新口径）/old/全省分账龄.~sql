@@ -1,0 +1,70 @@
+-- 历史欠费
+Select FEE_MONTH,
+			 Sum(Decode(AREA_NAME, '版纳', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '保山', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '楚雄', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '大理', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '德宏', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '迪庆', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '红河', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '昆明', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '省政企', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '省商业客户部', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '丽江', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '临沧', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '怒江', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '曲靖', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '普洱', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '文山', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '玉溪', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '昭通', XZQ_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '号百', XZQ_AMOUNT_TDHDL, 0)),
+			 Sum(XZQ_AMOUNT_TDHDL)
+	From (Select A.FEE_MONTH, A.AREA_CODE, C.AREA_NAME, Sum(A.AMOUNT - A.XZQ_DH_AMONUT) / 100 XZQ_AMOUNT_TDHDL
+					From (Select T1.*, Decode(T2.SERV_ID, Null, T1.STD_AREA_ID, t2.Area_Code1) AREA_CODE
+									From TMP_OWE_20160422_XZQ T1, (Select Distinct SERV_ID,t.Area_Code1 From TMP_OWE_KN_NEW03 T )  T2
+								 Where T1.FEE_MONTH >= 201211
+									 And T1.FEE_MONTH <= 201612
+									 And T1.IS_DL_FLAG = 0
+									 And T1.SERV_ID = T2.SERV_ID(+)) A,
+							 PU_META.LATN_NEW C
+				 Where A.AREA_CODE = C.LOCAL_CODE(+)
+				 Group By A.FEE_MONTH, A.AREA_CODE, C.AREA_NAME)
+ Group By FEE_MONTH
+ Order By FEE_MONTH;
+ 
+--　零帐龄
+-- 零帐龄欠费
+Select FEE_MONTH,
+       Sum(Decode(AREA_NAME, '版纳', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '保山', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '楚雄', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '大理', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '德宏', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '迪庆', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '红河', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '昆明', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '省政企', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '省商业客户部', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '丽江', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '临沧', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '怒江', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '曲靖', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '普洱', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '文山', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '玉溪', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '昭通', XZH_AMOUNT_TDHDL, 0)),
+       Sum(Decode(AREA_NAME, '号百', XZH_AMOUNT_TDHDL, 0)),
+       Sum(XZH_AMOUNT_TDHDL)
+  From (Select A.FEE_MONTH, A.AREA_CODE_NEW, C.AREA_NAME, Sum(A.AMOUNT - A.XZH_DH_AMONUT) / 100 XZH_AMOUNT_TDHDL
+          From (Select T1.*, Decode(T2.SERV_ID, Null, T1.AREA_CODE,t2.Area_Code1) AREA_CODE_NEW
+                  From TMP_OWE_20160422_XZH T1,
+                  (Select Distinct SERV_ID,t.Area_Code1 From TMP_OWE_KN_NEW03 T ) t2
+                 Where T1.FEE_MONTH = 201701
+                   And T1.IS_DL_FLAG = 0
+                   And T1.SERV_ID = T2.SERV_ID(+)) A,
+               PU_META.LATN_NEW C
+         Where A.AREA_CODE_NEW = C.LOCAL_CODE(+)
+         Group By A.FEE_MONTH, A.AREA_CODE_NEW, C.AREA_NAME)
+ Group By FEE_MONTH
+ Order By FEE_MONTH;

@@ -1,0 +1,62 @@
+select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is null) AND A.SYSTEM_NAME = 'FXGK系统'order by a.RULE_TYPE;
+select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is null) AND A.SYSTEM_NAME = '经分'order by a.RULE_TYPE;
+select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is null) AND A.SYSTEM_NAME = '大数据'order by a.RULE_TYPE;
+select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is null) AND A.SYSTEM_NAME like '%ODS%'order by a.RULE_TYPE;
+
+select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is null) order by a.RULE_TYPE;
+
+select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is null) AND  a.RULE_TYPE like '%异常%';
+
+select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is null) AND  a.RULE_TYPE like '%未开始调度%';
+
+/*
+select * from pu_meta.etl_program_rule where rule_id='3003206';---规则表 
+select * from ETLPLAT.ETL_JOB_SIGNAL  where signal_code='1090003005';--依赖信号量--老板的在180上查询，新版的在经分库上查询。
+*/
+---夜班
+/*
+select * from ETLPLAT.run_open_to_check; 
+
+SELECT * FROM ETLPLAT.RUN_OUT_CHECK;
+
+SELECT * FROM ETLPLAT.RUN_OUT_HOURS;
+
+SELECT * FROM ETLPLAT.RUN_FOCUS_REPORT;
+
+------
+--集团上传
+select * from PU_CHECK.Datacheck_Jtsc_Rule where rule_id='411010043' ---规则信息表
+
+select * from PU_CHECK.Datacheck_Jtsc_Interface_Rule A  WHERE A.INTERFACE_ID = 815 ---接口规则关系表
+
+select * from PU_CHECK.datacheck_jtsc_interface --接口信息表
+
+c
+ 
+ 
+ ------------
+ --查看稽核结果  111 : 产品实例
+select interface_id,latn_code,
+       count(decode(audit_result, 1, 1)) "稽核规则通过条数",
+       count(decode(audit_result, 0, 1)) "稽核规则不过条数",
+       count(decode(audit_result, -1, 1)) "稽核报错条数"
+  from PU_CHECK.datacheck_jtsc_checklog a
+ WHERE interface_id = 217 ---规则号
+   and time_no = 201712 --日期
+ group by interface_id,latn_code;
+ 
+ --查看稽核不过的那些规则
+ select a.*,ROWID
+   from PU_CHECK.datacheck_jtsc_checklog a
+  WHERE interface_id = 217
+    and time_no = 201712
+    and a.audit_result <> 1
+   ;
+ 
+  --接口及稽核规则关系表
+  select b.*,rowid from PU_CHECK.datacheck_jtsc_interface_rule b where interface_id =10124;
+  --稽核规则表，查看稽核规则
+  select C.*,ROWID from PU_CHECK.datacheck_jtsc_rule C where rule_id=ANY('301130018','301130029','301270079');
+  ---------
+
+

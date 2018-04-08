@@ -1,0 +1,116 @@
+CREATE OR REPLACE PROCEDURE PU_INTF.P_I_PRD_DM_OFFER_DETAIL_ODS(CYCLEID IN number) IS
+
+  /**
+    程序名   ：P_I_PRD_DM_OFFER_DETAIL  销售品成员接口（日）
+    开发人员 ：孙委斌  
+    开发时间 ：20180111
+    目标表   : PU_INTF.I_PRD_DM_OFFER_DETAIL;
+    传参     : {Date_No}
+    运行方式 : 按天调度
+    源表     ；INST.OFFER_MEMBER@DBLINK_IBSSCRM A, INST.OFFER@DBLINK_IBSSCRM
+    修改记录 ：由于CRM系统经常停机更新，所以开发一套备用直接走ODS销售品增量数据
+  **/
+  V_SQL          VARCHAR2(3000);
+  N_DAYS         number := 2; --数据迭代时间（天）
+  V_DATA_BEDATE  VARCHAR(30);
+  V_DATA_ENDDATE VARCHAR(30);
+  V_DEST_TNAME   VARCHAR2(40);
+  V_SOURCE_DB    VARCHAR(30);
+  V_TEMP_TNAME2  VARCHAR2(100);
+  N_DAY_NEXT     NUMBER;
+  V_MSG          VARCHAR(1000);
+  N_C            NUMBER;
+  N_CNT          NUMBER;
+
+BEGIN
+
+  V_DATA_ENDDATE := TO_CHAR(CYCLEID) || '235959';
+  V_DATA_BEDATE  := TO_CHAR(TO_DATE(TO_CHAR(CYCLEID), 'YYYYMMDD') - N_DAYS,
+                            'YYYYMMDD') || '000000';
+  V_DEST_TNAME   := 'PU_INTF.I_PRD_DM_OFFER_DETAIL';
+  ----该表在ODS系统跑好直接用
+  ---- V_TEMP_TNAME1  :='ipd_in.TMP_OFFER_DETAIL@dl_ods_89';
+  V_TEMP_TNAME2 := 'PU_INTF.TMP_OFFER_DETAIL2' || CYCLEID;
+  --V_SOURCE_DB    :='@DBLINK_IBSSCRM';
+  V_SOURCE_DB := '@DL_ODS_89';
+  --20170615 crm停机改从ODS走
+  N_DAY_NEXT := TO_NUMBER(TO_CHAR(TO_DATE(TO_CHAR(CYCLEID), 'YYYYMMDD') + 1,
+                                  'YYYYMMDD'));
+  N_CNT      := 0;
+
+  DBMS_OUTPUT.PUT_LINE('程序运行开始！！');
+
+  WHILE 1 = 1 LOOP
+    V_SQL := ' SELECT  COUNT(1)
+   FROM ALL_TABLES@DL_ODS_89
+  WHERE TABLE_NAME = ''TMP_OFFER_DETAIL''
+    AND OWNER = ''IPD_IN''';
+    EXECUTE IMMEDIATE V_SQL
+      INTO N_C;
+    IF N_C < 1 THEN
+      V_MSG := 'ODS 销售品成员调度延迟';
+      sys.dbms_lock.sleep(180);
+      N_CNT := N_CNT + 1;
+    ELSE
+      V_SQL := ' SELECT  COUNT(1)
+        FROM ' || V_DEST_TNAME || ' PARTITION (P' || CYCLEID || ') 
+         WHERE ROWNUM<=10000
+         ';
+      EXECUTE IMMEDIATE V_SQL INTO N_C;
+      IF N_C = 10000 THEN
+        exit;
+      ELSE
+        DBMS_OUTPUT.PUT_LINE('ALTER TABLE ' || V_DEST_TNAME ||
+                             ' TRUNCATE PARTITION P' || CYCLEID || ';');
+        EXECUTE IMMEDIATE 'ALTER TABLE ' || V_DEST_TNAME ||
+                          ' TRUNCATE PARTITION P' || CYCLEID;
+        --直接插入目标数据
+       V_SQL := 'INSERT /* + APPEND */ INTO ' || V_DEST_TNAME ||  ' PARTITION (P' || CYCLEID ||  ') NOLOGGING
+        (DATE_NO,
+         OFFER_MEMBER_ID,
+         ATOM_ACTION_ID,
+         OFFER_ID,
+         OFFER_ROLE_ID,
+         OBJ_TYPE,
+         MEMBER_ID,
+         START_DT,
+         END_DT,
+         STATUS_CD,
+         STATUS_DT,
+         CREATE_DT,
+         VERSION,
+         BSS_START_DT,
+         BSS_END_DT,
+         BILL_START_DT,
+         BILL_END_DT,
+         AREA_ID,
+         ETL_TIME)
+        SELECT  A.TIME_CD,
+                A.OFFER_MEMBER_ID,
+                A.ATOM_ACTION_ID,
+                A.OFFER_ID,
+                A.OFFER_ROLE_ID,
+                A.OBJ_TYPE,
+                A.MEMBER_ID,
+                A.START_DT,
+                A.END_DT,
+                A.STATUS_CD,
+                A.STATUS_DT,
+                A.CREATE_DT,
+                A.VERSION,
+                A.BSS_START_DT,
+                A.BSS_END_DT,
+                A.BILL_START_DT,
+                A.BILL_END_DT,
+                A.AREA_ID,
+                SYSDATE AS ETL_TIME
+           FROM  IPD_IN.TMP_OFFER_DETAIL@DL_ODS_89  A ';
+        DBMS_OUTPUT.PUT_LINE(V_SQL);
+        EXECUTE IMMEDIATE V_SQL;
+        COMMIT;
+        exit;
+      END IF;
+    END IF;
+  END LOOP;
+  DBMS_OUTPUT.PUT_LINE('程序运行结束！！');
+END P_I_PRD_DM_OFFER_DETAIL_ODS;

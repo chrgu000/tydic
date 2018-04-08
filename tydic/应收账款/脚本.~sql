@@ -1,0 +1,61 @@
+ NVL(OWE_MONTH_NEW,'全省合计')    帐龄<1个月    １个月≤帐龄≤２个月    ２个月＜帐龄≤３个月    ３个月＜帐龄≤１年    １年＜帐龄≤３年    ３年＜帐龄    合计 
+
+
+create table pu_intf.f_owe_month_dzj_m
+(data_type number,
+ month_no varchar2(6),
+ area_name varchar2(30),
+ owe_fee1 number,
+ owe_fee2 number,
+ owe_fee3 number,
+ owe_fee4 number,
+ owe_fee5 number,
+ owe_fee6 number,
+ owe_fee7 number
+)
+
+
+create table pu_intf.f_business_balance_m
+( month_no varchar2(6),
+  index_num number,
+  area_name varchar2(30),
+  end_balance number,
+  ddwfx_balance number,
+  other_balance number,
+  checks varchar2(30),
+  Remarks varchar2(30),
+  end_balance_last number,
+  end_balance_increase number,
+  end_balance_hb number,
+  ddwfx_balance_last number,
+  ddwfx_balance_increase number,
+  ddwfx_balance_hb number,
+  begging_balance number,
+  begging_balance_increase number,
+  begging_balance_hb number 
+)
+
+----加权表
+CREATE TABLE pu_intf.f_Accounts_receiv_y
+(year_no varchar2(4),
+ month_NO VARCHAR2(6),
+ VALUE_NUM  NUMBER) 
+
+select * from  pu_intf.f_Accounts_receiv_y for update
+---坏账准备预算值
+create table pu_intf.f_Bad_debt_budget_y
+(year_no varchar2(4),
+area_name varchar2(15),
+budget_value number)
+
+----需要去协调推送的接口
+1、应收账款科目余额表
+2、经营收入明细表
+
+
+---省政企生商客分账龄
+pu_busi_ind.bm_own_fee_age_m
+
+
+
+

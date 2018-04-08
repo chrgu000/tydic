@@ -1,0 +1,206 @@
+﻿新佣金系统相关表访问用户及密码（仅查询权限），请查收。 
+
+用户名:TPSS_2_IAP 密码:IAP2015 
+
+TNS: DESCRIPTION = 
+    (ADDRESS_LIST = 
+      (ADDRESS = (PROTOCOL = TCP)(HOST = 135.33.6.74)(PORT = 1521)) 
+    ) 
+    (CONNECT_DATA = 
+      (sid = agent) 
+    ) 
+    
+---    20160509  佣金系统更改数据库，使用原用户名密码
+TPSS=
+(DESCRIPTION =
+(ADDRESS = (PROTOCOL = TCP)(HOST = 135.33.7.28)(PORT = 1521))
+(ADDRESS = (PROTOCOL = TCP)(HOST = 135.33.7.29)(PORT = 1521))
+(LOAD_BALANCE = yes)
+(CONNECT_DATA =
+(SERVER = DEDICATED)
+(SERVICE_NAME = tpss)
+)
+)
+
+---   20170214 佣金系统更改数据库，使用原用户名密码
+tpss =
+(DESCRIPTION =
+(ADDRESS = (PROTOCOL = TCP)(HOST = 135.33.7.30)(PORT = 1621))
+(CONNECT_DATA =
+(SERVER = DEDICATED)
+(SERVICE_NAME = tpss.taf)
+)
+) 
+  
+  
+---佣金结算清单表、 
+select * from all_db_links;
+SELECT * FROM SETTLE.SETTLE_ITEM_DETAIL_201511@DL_AGENT; 
+---佣金结算账单表、-- 
+SELECT * FROM SETTLE.SETTLE_ITEM ;
+---佣金支付表、-- 
+SELECT * FROM SETTLE.operators_finan_vouch_list; 
+---代理商信息表、-- 
+SELECT * FROM SETTLE.operators;
+---渠道信息表、--- 
+SELECT * FROM SETTLE.CHANNEL; 
+---代理商渠道工号对应关系表、 
+SELECT * FROM SETTLE.STAFF_CHANNEL_OPERATORS_RELA; 
+---佣金方案表、-- 
+SELECT * FROM settle.V_PRODUCT_OFFER 
+---账目类型表、-- 
+SELECT * FROM comm.acct_item_type; 
+---佣金方案和账目类型对应关系表 暂未授权 
+SELECT * FROM SETTLE.OFFER_ACCT_ITEM_TYPE_RELA 
+---财辅编码表。 
+SELECT * FROM COMM.XYJ_ZZJGCS_CW;
+
+
+
+--------    清单抽取
+ALTER TABLE PU_INTF.I_PRD_SETTLE_ITEM_DETAIL_M ADD PARTITION P201711 VALUES('201711');
+Delete From PU_INTF.I_PRD_SETTLE_ITEM_DETAIL_M Where MONTH_NO = 201711;
+Commit;
+Insert Into PU_INTF.I_PRD_SETTLE_ITEM_DETAIL_M
+	Select '201711' MONTH_NO,
+				 SETTLE_DETAIL_ID,
+				 EVENT_ID,
+				 EVENT_SEQ,
+				 SETTLE_ROLE,
+				 SETTLE_OBJ_TYPE,
+				 SETTLE_OBJ_ID,
+				 SETTLE_ITEM_ID,
+				 SALES_ID,
+				 STAFF_ID,
+				 SERV_ID,
+				 PARTY_OFFER_INST_ID,
+				 OFFER_ID,
+				 SERV_OFFER_ID,
+				 ACC_NBR,
+				 PRODUCT_ID,
+				 COST_FLAG,
+				 ADJUST_FLAG,
+				 ACCT_ITEM_TYPE_ID,
+				 CHARGE,
+				 CHANNEL_ID,
+				 OPERATORS_ID,
+				 BILLING_CYCLE_ID,
+				 ORG_BILLING_CYCLE_ID,
+				 ORDER_DATE,
+				 CREATED_DATE,
+				 STATE,
+				 STATE_DATE,
+				 STRATEGY_ID,
+				 LANT_ID,
+				 SERVICE_CONTROL_ID,
+				 ELEMENT_STR,
+				 EVENT_TYPE_ID,
+				 FILE_ID,
+				 SETTLE_STAFF_ID,
+				 SETTLE_CHANNEL_ID,
+				 SETTLE_OPERATORS_ID,
+				 BILLING_RECORD,
+				 SOURCE_TYPE,
+				 TARIFF_ID,
+				 DISCOUNT_PERCENT,
+				 CALC_METHOD_ID,
+				 CALC_DESC,
+				 AMOUNT_BASE,
+				 AMOUNT_BASE_DESC,
+				 RESULT_TYPE,
+				 RESULT_TYPE_NAME,
+				 EVENT_TYPE_NAME,
+				 ACCT_ITEM_TYPE_NAME,
+				 OFFER_NAME,
+				 STRATEGY_NAME,
+				 SETTLE_OBJ_TYPE_NAME,
+				 SETTLE_OBJ_NAME,
+				 SETTLE_STAFF_NAME,
+				 SETTLE_CHANNEL_NAME,
+				 SETTLE_OPERATORS_NAME,
+				 SETTLE_AREA_ID,
+				 SETTLE_AREA_NAME,
+				 SALES_CODE,
+				 STAFF_CODE,
+				 SETTLE_STAFF_CODE,
+				 SERVICE_TYPE,
+				 PROCESS_STATE,
+				 SERVICE_CLASS,
+				 SPLIT_HAVE,
+				 SPLIT_TOTAL,
+				 OBJ_TYPE,
+				 OBJ_ID,
+				 SPEC_ID,
+				 UP_SERV_OFFER_ID,
+				 OL_NBR,
+				 ORDER_ID,
+				 FIND_ID,
+				 FIND_VAL,
+				 CALC_TARGET,
+				 PAY_PERCENT,
+				 ORI_CHARGE,
+				 WORK_TYPE,
+				 SPLIT_SOURCE_ID,
+				 DIFF_FLAG,
+				 SALES_TEAM_ID,
+				 OPER_TEAM_ID,
+				 BIND_STAFF_ID,
+				 OFFER_RECORD,
+				 SETTLE_FEE_STATE,
+				 ORDER_OPER_DATE
+		From SETTLE.SETTLE_ITEM_DETAIL_201711@DL_AGENT;
+Commit;
+
+Select * From PU_INTF.I_PRD_SETTLE_ITEM_DETAIL_M Where MONTH_NO = 201711;
+
+
+---- 账单抽取
+ALTER TABLE PU_INTF.I_SETTLE_ITEM_M ADD PARTITION P201711 VALUES('201711');
+
+Delete From PU_INTF.I_SETTLE_ITEM_M T Where MONTH_NO = 201711;
+Commit;
+
+Insert Into PU_INTF.I_SETTLE_ITEM_M
+  Select '201710' MONTH_NO,
+         SETTLE_ITEM_ID,
+         ITEM_MERGE_ID,
+         LANT_ID,
+         BILLING_CYCLE_ID,
+         ORG_BILLING_CYCLE_ID,
+         SETTLE_OBJ_TYPE,
+         SETTLE_OBJ_ID,
+         ADJUST_FLAG,
+         COST_FLAG,
+         AMOUNT,
+         STATE,
+         STATE_DATE,
+         PARENT_SETTLE_ITEM_ID,
+         CHANNEL_ID,
+         OPERATORS_ID,
+         ACCT_ITEM_TYPE_ID,
+         ACCT_ITEM_TYPE_NAME,
+         OFFER_ID,
+         OFFER_NAME,
+         EVENT_TYPE_ID,
+         EVENT_TYPE_NAME,
+         RESULT_TYPE,
+         RESULT_TYPE_NAME,
+         STRATEGY_ID,
+         STRATEGY_NAME,
+         SETTLE_OBJ_TYPE_NAME,
+         SETTLE_OBJ_NAME,
+         CHANNEL_NAME,
+         SETTLE_NUM,
+         OPERATORS_NAME,
+         AREA_ID,
+         SETTLE_AREA_NAME,
+         FIND_ID,
+         FIND_VAL,
+         FREE_AMOUNT,
+         DIFF_FLAG,
+         PAY_ITEM_ID
+    From SETTLE.SETTLE_ITEM@DL_AGENT
+   Where BILLING_CYCLE_ID <= 201710;
+Commit;
+
+Select * From PU_INTF.I_SETTLE_ITEM_M T Where MONTH_NO = 201710;

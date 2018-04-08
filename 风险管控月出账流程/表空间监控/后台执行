@@ -1,0 +1,27 @@
+
+[yntbas@YN-PS-APP-APP01 ~]$ cd /home/yntbas/user/lxs/shell/realrec  --目录
+[yntbas@YN-PS-APP-APP01 realrec]$ ll
+总用量 96
+-rw-r--r--. 1 yntbas oper     0 8月   7 2015 0
+-rw-r--r--. 1 yntbas oper   161 1月  11 11:14 month_no.lis
+-rw-r--r--. 1 yntbas oper   112 5月   6 2015 month_no.lis.bak
+-rw-------. 1 yntbas oper 68577 12月 12 00:40 nohup.out
+-rw-r--r--. 1 yntbas oper   175 12月 12 00:01 realrec.log
+-rwxr-xr-x. 1 yntbas oper 10698 6月  18 2017 realrec.sh
+[yntbas@YN-PS-APP-APP01 realrec]$ nohup ./realrec.sh 20180110 &  --执行
+[1] 10629
+[yntbas@YN-PS-APP-APP01 realrec]$ nohup: 忽略输入并把输出追加到"nohup.out"
+
+[yntbas@YN-PS-APP-APP01 realrec]$ ll
+总用量 96
+-rw-r--r--. 1 yntbas oper     0 8月   7 2015 0
+-rw-r--r--. 1 yntbas oper   168 1月  11 15:13 month_no.lis
+-rw-r--r--. 1 yntbas oper   112 5月   6 2015 month_no.lis.bak
+-rw-------. 1 yntbas oper 68716 1月  11 15:13 nohup.out
+-rw-r--r--. 1 yntbas oper     7 1月  11 15:13 realrec.log
+-rwxr-xr-x. 1 yntbas oper 10698 6月  18 2017 realrec.sh
+[yntbas@YN-PS-APP-APP01 realrec]$ ps -ef|grep  realrec.sh --查看
+yntbas   10629 10462  0 15:13 pts/2    00:00:00 /bin/sh ./realrec.sh 20180110
+yntbas   10651 10462  0 15:14 pts/2    00:00:00 grep realrec.sh
+[yntbas@YN-PS-APP-APP01 realrec]$ ^C
+[yntbas@YN-PS-APP-APP01 realrec]$ 

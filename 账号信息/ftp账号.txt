@@ -1,0 +1,5 @@
+协议:SFTP
+端口：22
+IP:135.33.6.14
+用户名：yntbas
+密码：SvuTVQLP
