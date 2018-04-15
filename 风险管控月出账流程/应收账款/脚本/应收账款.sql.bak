@@ -1,4 +1,113 @@
+---欠费账龄统计 党政军 手工
+create table pu_intf.f_owe_month_dzj_m
+(data_type number,
+ month_no varchar2(6),
+ area_code varchar2(30),
+ area_name varchar2(30),
+ owe_fee1 number,
+ owe_fee2 number,
+ owe_fee3 number,
+ owe_fee4 number,
+ owe_fee5 number,
+ owe_fee6 number,
+ owe_fee7 number
+)
+--党政军分账龄201706格式变化
+create table pu_intf.f_owe_month_dzj_m2  
+(data_type number,
+ month_no varchar2(6),
+ area_code varchar2(30),
+ area_name varchar2(30),
+ owe_fee1 number,
+ owe_fee2 number,
+ owe_fee3 number,
+ owe_fee4 number,
+ owe_fee5 number,
+ owe_fee6 number,
+ owe_fee7 number,
+ owe_fee8 number,
+ owe_fee9 number,
+ owe_fee10 number
+)
 
+---营业款结算清单表 手工
+create table pu_intf.f_business_balance_m
+( month_no varchar2(6),
+  index_num number,
+  area_code varchar2(30),
+  area_name varchar2(30),
+  end_balance number,
+  ddwfx_balance number,
+  other_balance number,
+  checks varchar2(30),
+  Remarks varchar2(30),
+  end_balance_last number,
+  end_balance_increase number,
+  end_balance_hb number,
+  ddwfx_balance_last number,
+  ddwfx_balance_increase number,
+  ddwfx_balance_hb number,
+  begging_balance number,
+  begging_balance_increase number,
+  begging_balance_hb number 
+)
+
+---省政企 省商客经营收入接口  通过页面手工输入
+create table pu_intf.f_charge_jysr_m
+(month_no varchar2(6),
+ area_code varchar2(10),
+ area_name varchar2(20),
+ kpi_code  varchar2(10),
+ kpi_name varchar2(50),
+ kpi_value1 number,
+ kpi_value2 number)
+
+select * from pu_intf.f_charge_jysr_m where month_NO='201702' for update 
+
+----经营收入号百划入昆明的数据
+pu_intf.f_charge_haobai_km 
+
+----加权表 手工一年倒一次
+CREATE TABLE pu_intf.f_Accounts_receiv_y
+(year_no varchar2(4), 
+ local_code varchar2(6),
+ VALUE_NUM1  NUMBER,
+ VALUE_NUM2  NUMBER,
+ VALUE_NUM3  NUMBER,
+ VALUE_NUM4  NUMBER,
+ VALUE_NUM5  NUMBER,
+ VALUE_NUM6  NUMBER,
+ VALUE_NUM7  NUMBER,
+ VALUE_NUM8  NUMBER,
+ VALUE_NUM9  NUMBER,
+ VALUE_NUM10  NUMBER,
+ VALUE_NUM11  NUMBER,
+ VALUE_NUM12  NUMBER) 
+
+select * from  pu_intf.f_Accounts_receiv_y for update
+
+---坏账准备预算值
+create table pu_intf.f_Bad_debt_budget_y
+(year_no varchar2(4),
+area_code varchar2(10),
+area_name varchar2(15),
+budget_value number)
+
+ 
+
+---省政企商客分账龄
+pu_busi_ind.bm_own_fee_age_m
+
+---- 省政企 省商客历史应收账款（用户欠费）表
+create table pu_busi_ind.bm_own_fee_age_m2
+(month_no	varchar2(6),
+area_code	varchar2(6),
+area_name	varchar2(16),
+charge_type	varchar2(6),
+id_value1	number,
+id_value2	number,
+id_value11	number
+)
 ------------------------------------------------begin------------------------------------------------
 ---总流程：
          

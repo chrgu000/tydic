@@ -5,7 +5,7 @@ select
   case when a.create_month='201707' and b.serv_id is not null then 1
        when a.create_month='201708' and c.serv_id is not null then 1
        when a.create_month='201709' and d.serv_id is not null then 1  
-         --SELECT to_char( add_months(to_date('201802','YYYYMM'),-5),'YYYYMM' )from dual;
+         --9月 SELECT to_char( add_months(to_date('201802','YYYYMM'),-5),'YYYYMM' )from dual;
          else 0 end is_bill6_flag
  from pu_wt.wt_half_serv_201802 a  --- 上月账期
  left join tbas.Wt_Bil_Chuzhang_201712_a@dl_edw_yn b on a.serv_id=b.serv_id

@@ -1,3 +1,20 @@
+
+ ---- 4G机卡匹配率
+  
+ SELECT * FROM  PU_INTF.I_LDAPM_LTE_PD_INST@dl_edw_yn  WHERE month_id='201803'; -- 源表1 没数据
+  
+SELECT * FROM  TBAS.DAPM_PRD_PD_INST_M_201802@dl_edw_yn; --源表2
+  
+ SELECT count(*) FROM   PU_BUSI_IND.BM_JKPP_RATIO_M WHERE month_no='201801';--4309
+
+ 
+ SELECT count(*) FROM   PU_BUSI_IND.BM_JKPP_RATIO_M WHERE month_no='201802'; --4347
+
+
+
+
+
+
 --WANGRM:注意上月跑脚本 分段跑 注释的情况     
 
 
@@ -7,7 +24,7 @@ select * from pu_meta.etl_program_rule where rule_id='7001125';---规则表
 
 select count(*) from  PU_WT.WT_CHRW_STREAM_INFO c where month_no='201802';--6364
 
-select COUNT(*) from  PU_WT.WT_CHRW_STREAM_INFO c where month_no='201801';--1	5188
+select COUNT(*) from  PU_WT.WT_CHRW_STREAM_INFO c where month_no='201803';--1	7945
 
 SELECT A.MONTH_NO,COUNT(*)  FROM PU_WT.WT_CHRW_STREAM_INFO A GROUP BY A.MONTH_NO ORDER BY A.MONTH_NO desc;
 
@@ -17,17 +34,18 @@ SELECT A.MONTH_NO,COUNT(*)  FROM PU_WT.WT_CHRW_STREAM_INFO A GROUP BY A.MONTH_NO
 -----
 select count(*) from  kg_intf.wt_serv_wx_201801; -- 1	18580190
 
-select count(*) from  kg_intf.wt_serv_wx_201712; --  1	18298225
+select count(*) from pu_wt.wt_channel_c_cl_m a WHERE a.month_no=201802; --  1	18298225
 
-select count(*) from  kg_intf.wt_serv_wx_201711;  --1	18043406
+select count(*) from  kg_intf.wt_serv_wx_201803@dl_239;  --1	18043406
 
+SELECT count(*) FROM  pu_wt.wt_serv_c_cl_201803;
 
 ------
 
 ---省政企省商客应收账款清单
 
  select * from PU_WT.wt_szq_ssk a where a.month_no=201802;--
- select * from PU_WT.wt_szq_ssk a where a.month_no=201712; --
+ select * from PU_WT.wt_szq_ssk a where a.month_no=201803; --
 
 --- 调账用户欠费情况 --11月数据没跑完
 
@@ -67,10 +85,11 @@ select * from  IPD_IN.I_IN_B_ACCT_ITEM_AGGR_DEL@Dl_Odl_89 a order by a.etl_time;
 select * from  PU_WT.F_1_SERV_D_JF a order by a.month_no desc; --数据源表2
 select * from   dsg.A_OWE_SPECIAL_SERV@Dl_Odl_89 a order by ；--数据源表3
                                        
-select count(*),sum(charge)  from  PU_WT.WT_ACCT_ITEM_SP_AGGR_DEL where month_NO='201801'; --12905	20641308
+select count(*),sum(charge)  from  PU_WT.WT_ACCT_ITEM_SP_AGGR_DEL where month_NO='201803'; --17923	30550229
 
 select count(*),sum(charge)  from  PU_WT.WT_ACCT_ITEM_SP_AGGR_DEL where month_NO='201802'; --15212	24392600
 
+SELECT * FROM  PU_WT.WT_ACCT_ITEM_SP_AGGR_DEL where month_NO='201803';
 
 -----虚拟预存抵扣增值业务清单
 
@@ -84,7 +103,7 @@ select A.MONTH_NO,count(*) from PU_WT.WT_ACCT_ITEM_XNYC_REDUCE_SP A GROUP BY A.M
  
  select a.month_no,count(*),sum(charge) from  PU_WT.WT_BIL_OWE_SP  a group by a.month_no order by a.month_no DESC;
  
- select count(*),sum(charge)  from  PU_WT.WT_BIL_OWE_SP partition(p201801);--2440939	3112672983
+ select count(*),sum(charge)  from  PU_WT.WT_BIL_OWE_SP partition(p201803);--2340397	3009456604
 
  select count(*),sum(charge)  from  PU_WT.WT_BIL_OWE_SP partition(p201802);--2415684	3176905013
 
@@ -92,7 +111,8 @@ select A.MONTH_NO,count(*) from PU_WT.WT_ACCT_ITEM_XNYC_REDUCE_SP A GROUP BY A.M
 
 ---省际语音漫游高额清单
 
- Select count(*),sum(charge),sum(sett_fee) FROM pu_wt.wt_roam_call_js_mon t Where t.Month_No = 201801 and t.SETT_FEE <-100; --173	3992639	-23444.94
+ Select count(*),sum(charge),sum(sett_fee) FROM pu_wt.wt_roam_call_js_mon t Where t.Month_No = 201803 and t.SETT_FEE <-100; -- 176	3737776	-22497.28
+
 
  Select count(*),sum(charge),sum(sett_fee) FROM pu_wt.wt_roam_call_js_mon t Where t.Month_No = 201802 and t.SETT_FEE <-100;--	45	1280337	-5600.56
 
@@ -101,7 +121,8 @@ select A.MONTH_NO,count(*) from PU_WT.WT_ACCT_ITEM_XNYC_REDUCE_SP A GROUP BY A.M
 ---
 ----用户sp费用减免情况   
       
- select count(*),sum(charge) ,sum(sp_charge) from  WT_SERV_ACCT_ITEM_SP_M partition (p201801); --206599	5737601.32	-3185738.9
+ select count(*),sum(charge) ,sum(sp_charge) from  WT_SERV_ACCT_ITEM_SP_M partition (p201803); --213819	6252305.91	-3394778.65
+
 
  select count(*),sum(charge) ,sum(sp_charge) from  WT_SERV_ACCT_ITEM_SP_M partition (p201802)--	208979	6184256.81	-3393048.62
 
@@ -127,7 +148,7 @@ select month_no,count(*),sum(charge)
 
 
 --增值业务欠费情况
-    SELECT   *  FROM   PU_BUSI_IND.BM_BIL_OWE_SP_ZH  a   where a.MONTH_NO=201801
+    SELECT   *  FROM   PU_BUSI_IND.BM_BIL_OWE_SP_ZH  a   where a.MONTH_NO=201803
    
     SELECT   *  FROM   PU_BUSI_IND.BM_BIL_OWE_SP_ZH  a   where a.MONTH_NO=201802
 

@@ -35,15 +35,6 @@ select /*+parallel(a,8)*/    count(*) from  pu_intf.i_acct_item_m partition(p201
   
   
   
- ---- 4G机卡匹配率
-  
- SELECT * FROM  PU_INTF.I_LDAPM_LTE_PD_INST@dl_edw_yn  WHERE month_id='201802'; -- 源表1 没数据
-  
-SELECT * FROM  TBAS.DAPM_PRD_PD_INST_M_201802@dl_edw_yn; --源表2
-  
- SELECT count(*) FROM   PU_BUSI_IND.BM_JKPP_RATIO_M WHERE month_no='201801';--4309
 
- 
- SELECT count(*) FROM   PU_BUSI_IND.BM_JKPP_RATIO_M WHERE month_no='201802'; --4347
 
 

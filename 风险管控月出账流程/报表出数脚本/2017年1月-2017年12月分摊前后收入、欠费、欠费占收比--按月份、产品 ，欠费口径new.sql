@@ -65,9 +65,9 @@ CREATE TABLE TMP_20171009_A NOLOGGING AS
           'ICT及其他'
        End STD_TERM_TYPE
    From PU_WT.F_1_SERV_D_JF T1, 
-   PU_INTF.I_IN_KG_SERV_GRID Partition(P201801) T5, --上月账期
+   PU_INTF.I_IN_KG_SERV_GRID Partition(P201803) T5, --上月账期
    PU_META.D_HX_ZD_ORG_BRANCH_TREE T4,
-   PU_WT.WT_SERV_SHZ_ALL_201801 T3    --上月账期
+   PU_WT.WT_SERV_SHZ_ALL_201803 T3    --上月账期
   Where T1.SERV_ID = T5.PROD_ID(+)
     And T5.SUM_BRANCH_CODE = T4.BRANCH_CODE(+)
     And T1.SERV_ID = T3.SERV_ID(+);
@@ -81,7 +81,7 @@ Select SERV_ID, Sum(CHARGE_FLH) CHARGE_FLH
           From (Select SERV_ID, Sum(CHARGE_FLH) / 100 CHARGE_FLH
                   From PU_MODEL.TB_BIL_FIN_INCM_MON_201801 T
                  Group By SERV_ID
-                 /*   Union All
+                    Union All
                 Select SERV_ID, Sum(CHARGE_FLH) / 100 CHARGE_FLH
                   From PU_MODEL.TB_BIL_FIN_INCM_MON_201802 T
                  Group By SERV_ID
@@ -89,6 +89,7 @@ Select SERV_ID, Sum(CHARGE_FLH) CHARGE_FLH
                 Select SERV_ID, Sum(CHARGE_FLH) / 100 CHARGE_FLH
                   From PU_MODEL.TB_BIL_FIN_INCM_MON_201803 T
                  Group By SERV_ID
+              /*
             Union All
                 Select SERV_ID, Sum(CHARGE_FLH) / 100 CHARGE_FLH
                   From PU_MODEL.TB_BIL_FIN_INCM_MON_201804 T
@@ -126,7 +127,8 @@ Select SERV_ID, Sum(CHARGE_FLH) CHARGE_FLH
                   From PU_MODEL.TB_BIL_FIN_INCM_MON_2018012 T     ---后面加上 上月每月的
          Group By SERV_ID*/) 
             Group By SERV_ID;                                             
---         
+--        
+drop table  pu_wt.TMP_20171009_B;
 create table pu_wt.TMP_20171009_B PARALLEL 8 NOLOGGING AS         
 Select A.AREA_CODE1,
        D.Area_Name,
@@ -148,7 +150,7 @@ Select A.AREA_CODE1,
        SUM( NVL(C.Month_Amount_Real,0) )/10000 NUM_16
   From TMP_20171009_A A,
       ly.TB_BIL_FIN_INCM_MON_2017@DL_EDW_YN B, 
-       PU_WT.WT_BIL_OWE_LIST_D_NEW Partition(P20180210) C, --当月10号  (s)
+       PU_WT.WT_BIL_OWE_LIST_D_NEW Partition(P20180408) C, --当月10号  (s)
        PU_META.Latn_New D
  Where A.SERV_ID = B.SERV_ID(+)
    And A.SERV_ID = C.SERV_ID(+)
@@ -156,7 +158,7 @@ Select A.AREA_CODE1,
    Group By A.AREA_CODE1,D.AREA_NAME
    Order By D.AREA_NAME;
 
-select * from pu_wt.TMP_20171009_B;   
+--select * from pu_wt.TMP_20171009_B;   
 
 select * from TMP_20171009_B  Order By AREA_NAME
 --删除临时表

@@ -9,7 +9,15 @@ select * from pu_meta.etl_inter_rule where rule_id= 2010012;
    查询临时表空间
 
 */
-SELECT a.tablespace_name,
+   PU_WT.P_WT_YSDB_SERV_DEV_M
+   
+    PU_WT.WT_SERV_YSXJ_M_201712
+   
+   
+   
+select ts#, name FROM v$tablespace; ---查表空间id    
+
+   SELECT a.tablespace_name,
            a.BYTES / (1024 * 1024) "total(M)",
            a.bytes / (1024 * 1024) - nvl(b.bytes / (1024 * 1024), 0) "free(M)",
            round(b.bytes / a.BYTES * 100, 2) "使用率",
@@ -21,9 +29,7 @@ SELECT a.tablespace_name,
               FROM v$temp_extent_pool
              GROUP BY tablespace_name) b
      WHERE a.tablespace_name = b.tablespace_name(+);
-   
-select ts#, name FROM v$tablespace; ---查表空间id    
-   
+     
 alter session set events 'immediate trace name DROP_SEGMENTS level 17'; -- USER_TEMP1
 alter session set events 'immediate trace name DROP_SEGMENTS level 18'; -- WT_TEMP
 

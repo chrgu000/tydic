@@ -12,6 +12,8 @@ select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is nu
 /*
 select * from pu_meta.etl_program_rule where rule_id='3003206';---规则表 
 select * from ETLPLAT.ETL_JOB_SIGNAL  where signal_code='1090003005';--依赖信号量--老板的在180上查询，新版的在经分库上查询。
+SELECT * FROM  PU_LOG.tb_pub_coll_log WHERE BILLING_CYLE=20180406
+
 */
 ---夜班
 /*
