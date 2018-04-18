@@ -91,7 +91,7 @@ CREATE TABLE TMP_OWE_XZH_1  AS
  SELECT *
  From (　Select T1.*,
  　　　　　　　Decode(T2.SERV_ID, Null, T1.AREA_CODE,t2.Area_Code1) AREA_CODE_NEW
-             From   TMP_OWE_XZH T1,   ---销账后    pu_list.sub_OWE_XZH
+             From   TMP_OWE_XZH T1,   ---销账后    
              (Select Distinct SERV_ID,
              　　　　T.Area_Code1
                   From  PU_busi_IND.bm_OWE_KN_NEW03@dl_newfx T

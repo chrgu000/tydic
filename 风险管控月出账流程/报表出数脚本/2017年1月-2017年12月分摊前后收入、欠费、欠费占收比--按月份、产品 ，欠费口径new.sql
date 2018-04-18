@@ -146,7 +146,7 @@ Select A.AREA_CODE1,
        SUM(CASE WHEN A.Std_Term_Type = '×¨Ïß' THEN NVL(C.Month_Amount_Real,0) ELSE 0 END )/10000 NUM_12,
        SUM(CASE WHEN A.Std_Term_Type = 'IPTV' THEN NVL(B.CHARGE_FLH,0) ELSE 0 END )/10000 NUM_13,
        SUM(CASE WHEN A.Std_Term_Type = 'IPTV' THEN NVL(C.Month_Amount_Real,0) ELSE 0 END )/10000 NUM_14,
-       SUM( NVL(B.CHARGE_FLH,0) )/10000 NUM_15,
+       SUM( NVL(B.,0) )/1000CHARGE_FLH0 NUM_15,
        SUM( NVL(C.Month_Amount_Real,0) )/10000 NUM_16
   From TMP_20171009_A A,
       ly.TB_BIL_FIN_INCM_MON_2017@DL_EDW_YN B, 

@@ -1,0 +1,7 @@
+select * from tbas.wt_prod_serv_d_201804 --日资料表
+select * from pu_meta.tpdim_std_product_lev;--经分产品类型表
+select * from pu_meta.tprel_product where std_product_id in (55,56,57,10)--产品类型映射表
+select * from pu_meta.tpdim_std_area where up_std_area_id='10'--地州
+select * from tbas.wt_prd_serv_mon_201803--月资料表
+select * from all_tables where table_name like '%SERV%' AND OWNER='TBAS';--搜类似表名
+SELECT * FROM pu_meta.etl_program_rule where rule_name like '%业务量%'--ETL配置表

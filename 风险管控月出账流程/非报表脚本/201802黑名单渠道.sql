@@ -4,24 +4,24 @@ select
   a.*,
   case when a.create_month='201707' and b.serv_id is not null then 1
        when a.create_month='201708' and c.serv_id is not null then 1
-       when a.create_month='201709' and d.serv_id is not null then 1  
+       when a.create_month='201709' and d.serv_id is not null then 1    -- 上月账期-5
          --9月 SELECT to_char( add_months(to_date('201802','YYYYMM'),-5),'YYYYMM' )from dual;
          else 0 end is_bill6_flag
  from pu_wt.wt_half_serv_201802 a  --- 上月账期
  left join tbas.Wt_Bil_Chuzhang_201712_a@dl_edw_yn b on a.serv_id=b.serv_id
  left join tbas.Wt_Bil_Chuzhang_201801_a@dl_edw_yn c on a.serv_id=c.serv_id
- left join tbas.Wt_Bil_Chuzhang_201802_a@dl_edw_yn d on a.serv_id=d.serv_id
+ left join tbas.Wt_Bil_Chuzhang_201802_a@dl_edw_yn d on a.serv_id=d.serv_id   -- 上月账期
 where a.term_type_id in(779)
 ----  and a.term_type_id in(779,833)   ---- 20170330  吴道义要求剔除数据卡
 and a.is_dev_flag=1
-and a.create_month in(201707,201708,201709);
+and a.create_month in(201707,201708,201709);  
 
 --drop table pu_wt.tmp_serv_black_2 purge;
 create table pu_wt.tmp_serv_black_2 parallel 6 nologging as 
 Select a.*,
        case when a.create_month='201707' and b.call_number>=5 and c.call_number>=5 and d.call_number>=5 then 1 
             when a.create_month='201708' and c.call_number>=5 and d.call_number>=5 and e.call_number>=5 then 1 
-            when a.create_month='201709' and d.call_number>=5 and e.call_number>=5 and f.call_number>=5 then 1 
+            when a.create_month='201709' and d.call_number>=5 and e.call_number>=5 and f.call_number>=5 then 1  -- 上月账期-5
            else 0 end is_callday_flag,  
        case when a.is_livecard=1 then 1 else 0 end is_kxp_flag
  From  pu_wt.tmp_serv_black_1 a 
@@ -49,7 +49,7 @@ select
  from pu_wt.tmp_serv_black_2 a
 left join tbas.wt_half_serv_201712@Dl_Edw_Yn b on a.serv_id=b.serv_id
 left join pu_wt.wt_half_serv_201801 c on a.serv_id=c.serv_id
-left join pu_wt.wt_half_serv_201802 d on a.serv_id=d.serv_id
+left join pu_wt.wt_half_serv_201802 d on a.serv_id=d.serv_id   --上月账期
 left join pu_meta.D_CHANNEL_OUTCOUNTRY bb on a.dvlp_channel_id=bb.dvlp_channel_id
 left join pu_meta.f_1_crm_channel cc on a.dvlp_channel_id=cc.channel_id
 left join pu_meta.f_1_crm_staff dd on a.dvlp_staff_id=dd.staff_code;

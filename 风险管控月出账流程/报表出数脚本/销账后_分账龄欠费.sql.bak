@@ -12,7 +12,7 @@ select
             ELSE '19' || SUBSTR(a.BILLING_CYCLE_ID,2,4) end fee_month,
      sum(a.tab_amount) dl_amount,
      a.billing_cycle_id
- from pu_model.TB_BIL_OWE_TAB_201801 a   --上月账期
+ from pu_model.TB_BIL_OWE_TAB_201803 a   --上月账期
  Where  a.tab_amount >0
  and nvl(qf_or_hz,'5JA')<>'5JF'
  group by
@@ -24,6 +24,8 @@ select
             WHEN SUBSTR(a.billing_cycle_id,4,2)='13' THEN '19' || SUBSTR(a.BILLING_CYCLE_ID, 2,2)||'12'
             ELSE '19' || SUBSTR(a.BILLING_CYCLE_ID,2,4) end,
  a.billing_cycle_id;
+
+
 
 --- 销帐后
 DROP TABLE TMP_OWE_XZH PURGE;
@@ -72,12 +74,12 @@ Select A.*,
        End IS_DL_FLAG,
        Case
          When Nvl(B.DL_AMOUNT, 0) <> 0 And
-              B.FEE_MONTH = '201801' Then
+              B.FEE_MONTH = '201803' Then   ---
           1
          Else
           0
        End IS_M_DL_FLAG
-  From PU_MODEL.TB_BIL_OWE_M_201801 A
+  From PU_MODEL.TB_BIL_OWE_M_201803 A  ---
   Left Join TMP_OWE_DL B
     On A.SERV_ID = B.SERV_ID
    And A.BILLING_CYCLE_ID = B.BILLING_CYCLE_ID
@@ -89,11 +91,11 @@ CREATE TABLE TMP_OWE_XZH_1  AS
  SELECT *
  From (　Select T1.*,
  　　　　　　　Decode(T2.SERV_ID, Null, T1.AREA_CODE,t2.Area_Code1) AREA_CODE_NEW
-             From   LY.TMP_OWE_XZH T1,   ---销账后    pu_list.sub_OWE_XZH
+             From   TMP_OWE_XZH T1,   ---销账后    pu_list.sub_OWE_XZH
              (Select Distinct SERV_ID,
              　　　　T.Area_Code1
                   From  PU_busi_IND.bm_OWE_KN_NEW03@dl_newfx T
-                  where month_NO='201801')  T2
+                  where month_NO='201803')  T2   ----
        Where   T1.IS_DL_FLAG = 0
       And T1.SERV_ID = T2.SERV_ID(+) ) ;
 
@@ -122,12 +124,6 @@ Select FEE_MONTH,
   From (Select A.FEE_MONTH, A.AREA_CODE_NEW, C.AREA_NAME,
           Sum(A.AMOUNT - A.XZH_DH_AMONUT) / 100 XZH_AMOUNT_TDHDL
           From TMP_OWE_XZH_1 A,
-         /* (Select T1.*, Decode(T2.SERV_ID, Null, T1.AREA_CODE,t2.Area_Code1) AREA_CODE_NEW
-                  From LY.TMP_OWE_XZH T1,   ---销账后    pu_list.sub_OWE_XZH
-                (Select Distinct SERV_ID,t.Area_Code1
-                  From  PU_busi_IND.bm_OWE_KN_NEW03@dl_newfx T where month_NO='201801' )  T2
-                 Where   T1.IS_DL_FLAG = 0
-                   And T1.SERV_ID = T2.SERV_ID(+)) A,*/
                PU_META.LATN_NEW@dl_newfx C
          Where A.AREA_CODE_NEW = C.LOCAL_CODE(+)
          Group By A.FEE_MONTH, A.AREA_CODE_NEW, C.AREA_NAME)

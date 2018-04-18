@@ -39,13 +39,25 @@ drop table PU_INTF.TMP_SERV_BAODA_201802 purge;
 Drop  table PU_WT.RPT_SERV_SZQ_LIST_201802;
 drop table pu_wt.rpt_owe_ssk_list_201802;
 
+
+--- 风险管控 报表 临时表
 drop table  pu_wt.rpt_owe_ssk_xzq;  --销账前
+
 drop table    pu_wt.rpt_owe_ssk_xzh;  --销账后
 
 drop table pu_wt.rpt_owe_szq_xzq_201802; --销账前
 
 drop table pu_wt.rpt_owe_szq_xzh_201802;  --销账后
 
-drop table pu_wt.tmp_owe_age_count2;
+drop table pu_wt.tmp_owe_age_count2; 
 
-drop table pu_wt.tmp_owe_age_count2 ;
+drop table   PU_WT.RPT_SERV_SZQ_LIST_201802；
+drop table pu_wt.rpt_owe_ssk_list_201802；
+drop table pu_wt.rpt_owe_ftqh_201803；
+
+--- 经分 报表 临时表
+drop table  ly.rpt_owe_flh_201802;  --经分报表 临时表
+
+drop table  TBAS.RPT_OWE_XZQ_DL；---销账前
+
+drop table  TBAS.RPT_OWE_XZH_201802;  ---销账后
