@@ -2,7 +2,6 @@ select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is nu
 select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is null) AND A.SYSTEM_NAME = '经分'order by a.RULE_TYPE;
 select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is null) AND A.SYSTEM_NAME = '大数据'order by a.RULE_TYPE;
 select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is null) AND A.SYSTEM_NAME like '%ODS%'order by a.RULE_TYPE;
-
 --select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is null) order by a.RULE_TYPE;
 
 select * from etlplat.run_open_table a where (STARTDATE is null or LOGDATE is null) AND  a.RULE_TYPE like '%异常%';

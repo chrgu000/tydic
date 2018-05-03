@@ -28,7 +28,7 @@ select * from pu_wt.f_1_serv_d_jf where rownum<10;  --用户表
 select * from comm.product@dl_jf219 where rownum<10; --产品表
 
 select * from pu_wt.f_2_offer_serv_d where rownum<10; --销售品表
-
+·
 select * from pu_meta.offer_spec where rownum<10  --套餐表
 
 select * from PU_INTF.I_BIL_PAYMENT --按月缴费记录
@@ -43,7 +43,7 @@ select *  from tbas.wt_bs_offer_serv_d  s ; ---销售品表
 
 select * from PU_MODEL.TB_PTY_CRM_CHANNEL; ---渠道维表
 
-select * from TBAS.EVT_PRD_BUSI_M_201711  ---月业务量宽表 (取上网流量)
+select * from TBAS.EVT_PRD_BUSI_M_201711;  ---月业务量宽表 (取上网流量)
   
 select * from pu_list.p_cdmalx_list_m   --取省际漫游流量
 
