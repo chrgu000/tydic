@@ -1,10 +1,10 @@
 
 SELECT * FROM  PU_WT.WT_SERV_JTHZ_201801
 
-select * from pu_meta.etl_program_rule where rule_id='700020016';---规则表 
+select a.*,a.rowid from pu_meta.etl_program_rule a where rule_id in ('2010026','3003188');---规则表 
 
-TBAS.P_RPT_OWE_XZQ_DL
-select * from pu_meta.etl_inter_rule where rule_id= 2010012;
+
+select * from pu_meta.etl_inter_rule where rule_id =' 2010026;
 /*
    查询临时表空间
 

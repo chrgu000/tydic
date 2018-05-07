@@ -36,8 +36,9 @@ select count(*) from  kg_intf.wt_serv_wx_201801; -- 1	18580190
 
 select count(*) from pu_wt.wt_channel_c_cl_m a WHERE a.month_no=201802; --  1	18298225
 
-select count(*) from  kg_intf.wt_serv_wx_201803;  --1	18043406
+select count(*) from  kg_intf.wt_serv_wx_201803@dl_239;  --1	18043406
 
+SELECT count(*) FROM  pu_wt.wt_serv_c_cl_201803;
 
 ------
 

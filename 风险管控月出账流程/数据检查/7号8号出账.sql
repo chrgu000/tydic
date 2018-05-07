@@ -1,9 +1,9 @@
 
  ---- 4G机卡匹配率
   
- SELECT * FROM  PU_INTF.I_LDAPM_LTE_PD_INST@dl_edw_yn  WHERE month_id='201803'; -- 源表1 没数据
+ SELECT * FROM  PU_INTF.I_LDAPM_LTE_PD_INST@dl_edw_yn  WHERE month_id='201804'; -- 源表1 没数据
   
-SELECT * FROM  TBAS.DAPM_PRD_PD_INST_M_201802@dl_edw_yn; --源表2
+SELECT * FROM  TBAS.DAPM_PRD_PD_INST_M_201804@dl_edw_yn; --源表2
   
  SELECT count(*) FROM   PU_BUSI_IND.BM_JKPP_RATIO_M WHERE month_no='201801';--4309
 
